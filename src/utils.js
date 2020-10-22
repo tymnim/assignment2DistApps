@@ -16,6 +16,16 @@ function makeHashOf(password, saltRounds) {
   })
 }
 
+function passwordsMatch(password, hash) {
+  return new Promise((resolve, reject) => bcrypt.compare(password, hash, (err, res) => {
+    if (err) {
+      reject(err)
+      return
+    }
+    resolve(res)
+  })
+}
+
 function retrieveDataFrom(req) {
   return new Promise((resolve, reject) => {
     let data = ""
@@ -120,10 +130,6 @@ function addRoutes(routes, app) {
   })
 }
 
-function userExists(username, db) {
-  return db.collection("users").findOne({ name: username })
-}
-
 exports.SALT_ROUNDS = SALT_ROUNDS
 exports.makeHashOf = makeHashOf
 exports.retrieveDataFrom = retrieveDataFrom
@@ -132,4 +138,4 @@ exports.retrieveDataFrom = retrieveDataFrom
 exports.exitHandler = exitHandler
 exports.dbConnect = dbConnect
 exports.addRoutes = addRoutes
-exports.userExists = userExists
+exports.passwordsMatch = passwordsMatch
