@@ -4,13 +4,14 @@ require('dotenv').config()
 
 const utils = require('./src/utils.js')
 const express = require('express')
-const jwt = require("jsonwebtoken")
 const fs = require("fs")
 
 const DB_URL = "mongodb://127.0.0.1:27017/utunes"
 const ROUTES_FOLDER = "./src/routes/"
 
 async function main() {
+  // TODO: private key read base on process.env variable
+
   const db = await utils.dbConnect(DB_URL)
   global.db = db
   

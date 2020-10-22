@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt')
 const { MongoClient } = require('mongodb')
-const querystring = require('querystring')
+const jwt = require("jsonwebtoken")
 
 const SALT_ROUNDS = 10
 
@@ -17,12 +17,14 @@ function makeHashOf(password, saltRounds) {
 }
 
 function passwordsMatch(password, hash) {
-  return new Promise((resolve, reject) => bcrypt.compare(password, hash, (err, res) => {
-    if (err) {
-      reject(err)
-      return
-    }
-    resolve(res)
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(password, hash, (err, res) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(res)
+    })
   })
 }
 
@@ -62,11 +64,9 @@ function retrieveDataFrom(req) {
 //   })
 // }
 
-// // ^^the above object structure is completely arbitrary
-// function generateAccessToken(username) {
-//   // expires after half and hour (1800 seconds = 30 minutes)
-//   return jwt.sign({ username }, process.env.TOKEN_SECRET, { expiresIn: '1800s' })
-// }
+function generateAccessTokenFor(username) {
+  return jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: 60 * 60 })
+}
 
 function exitHandler(cleanUpFn) {
   process.stdin.resume() // so the program will not close instantly
@@ -134,7 +134,7 @@ exports.SALT_ROUNDS = SALT_ROUNDS
 exports.makeHashOf = makeHashOf
 exports.retrieveDataFrom = retrieveDataFrom
 // exports.authenticateToken = authenticateToken
-// exports.generateAccessToken = generateAccessToken
+exports.generateAccessTokenFor = generateAccessTokenFor
 exports.exitHandler = exitHandler
 exports.dbConnect = dbConnect
 exports.addRoutes = addRoutes
