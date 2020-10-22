@@ -23,27 +23,19 @@ function retrieveDataFrom(req) {
       data += chunk
     })
     req.on("end", () => {
-      resolve(data)
+      let parsed;
+      try {
+        parsed = JSON.parse(data)
+      }
+      catch (err) {
+        reject(new Error("Failed to parse json"))
+      }
+      resolve(parsed)
     })
     req.on("error", (err) => {
       reject(err)
     })
   })
-}
-
-function getBoundaryOf(request) {
-  let contentType = request.headers['content-type']
-  const contentTypeArray = contentType.split(';').map(item => item.trim())
-  const boundaryPrefix = 'boundary='
-  let boundary = contentTypeArray.find(item => item.startsWith(boundaryPrefix))
-  if (!boundary) {
-    return null
-  }
-  boundary = boundary.slice(boundaryPrefix.length)
-  if (boundary) {
-    boundary = boundary.trim()
-  }
-  return boundary
 }
 
 // function authenticateToken(req, res, next) {
@@ -84,8 +76,8 @@ function exitHandler(cleanUpFn) {
 
 function dbConnect(url) {
   return new Promise((resolve, reject) => {
-    const client = new MongoClient(url)
-    client.connect((err, db) => {
+    const cl = new MongoClient(url)
+    cl.connect((err, client) => {
       if (err) {
         reject(err)
         return
@@ -94,17 +86,17 @@ function dbConnect(url) {
         console.log(" - Closing Database Conneciton")
         client.close()
       })
+      const db = client.db("utunes")
       console.log(" - Connected to Database")
       resolve(db)
     })
-
   })
 }
 
 function addRoutes(routes, app) {
   routes.forEach(route => {
     const name = Object.keys(route)[0]
-    console.log(`+ Adding ${name} route`)
+    console.log(` + Adding ${name} route`)
     const { type, path, authNeeded, callback } = route[name]
     if (type === "get") {
       if (authNeeded) {
