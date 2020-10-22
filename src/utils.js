@@ -1,0 +1,143 @@
+const bcrypt = require('bcrypt')
+const { MongoClient } = require('mongodb')
+const querystring = require('querystring')
+
+const SALT_ROUNDS = 10
+
+function makeHashOf(password, saltRounds) {
+  return new Promise((resolve, reject) => {
+    bcrypt.hash(password, saltRounds, (err, hash) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(hash)
+    })
+  })
+}
+
+function retrieveDataFrom(req) {
+  return new Promise((resolve, reject) => {
+    let data = ""
+    req.on("data", chunk => {
+      data += chunk
+    })
+    req.on("end", () => {
+      resolve(data)
+    })
+    req.on("error", (err) => {
+      reject(err)
+    })
+  })
+}
+
+function getBoundaryOf(request) {
+  let contentType = request.headers['content-type']
+  const contentTypeArray = contentType.split(';').map(item => item.trim())
+  const boundaryPrefix = 'boundary='
+  let boundary = contentTypeArray.find(item => item.startsWith(boundaryPrefix))
+  if (!boundary) {
+    return null
+  }
+  boundary = boundary.slice(boundaryPrefix.length)
+  if (boundary) {
+    boundary = boundary.trim()
+  }
+  return boundary
+}
+
+// function authenticateToken(req, res, next) {
+//   // Gather the jwt access token from the request header
+//   const authHeader = req.headers['authorization']
+//   const token = authHeader && authHeader.split(' ')[1]
+//   if (token == null) return res.sendStatus(401) // if there isn't any token
+
+//   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+//     console.log(err)
+//     if (err) return res.sendStatus(403)
+//     req.user = user
+//     next() // pass the execution off to whatever request the client intended
+//   })
+// }
+
+// // ^^the above object structure is completely arbitrary
+// function generateAccessToken(username) {
+//   // expires after half and hour (1800 seconds = 30 minutes)
+//   return jwt.sign({ username }, process.env.TOKEN_SECRET, { expiresIn: '1800s' })
+// }
+
+function exitHandler(cleanUpFn) {
+  process.stdin.resume() // so the program will not close instantly
+  const exit = () => {
+    cleanUpFn()
+    process.exit()
+  }
+  process.on('exit', exit)
+  //catches ctrl+c event
+  process.on('SIGINT', exit)
+  // catches "kill pid" (for example: nodemon restart)
+  process.on('SIGUSR1', exit)
+  process.on('SIGUSR2', exit)
+  //catches uncaught exceptions
+  process.on('uncaughtException', exit)
+}
+
+function dbConnect(url) {
+  return new Promise((resolve, reject) => {
+    const client = new MongoClient(url)
+    client.connect((err, db) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      exitHandler(() => {
+        console.log(" - Closing Database Conneciton")
+        client.close()
+      })
+      console.log(" - Connected to Database")
+      resolve(db)
+    })
+
+  })
+}
+
+function addRoutes(routes, app) {
+  routes.forEach(route => {
+    const name = Object.keys(route)[0]
+    console.log(`+ Adding ${name} route`)
+    const { type, path, authNeeded, callback } = route[name]
+    if (type === "get") {
+      if (authNeeded) {
+        app.get(path, authenticateToken, callback)
+      }
+      else {
+        app.get(path, callback)
+      }
+      return
+    }
+
+    if (type === "post") {
+      if (authNeeded) {
+        app.post(path, authenticateToken, callback)
+      }
+      else {
+        app.post(path, callback)
+      }
+      return
+    }
+  })
+}
+
+function userExists(username, db) {
+  return db.collection("users").findOne({ name: username })
+}
+
+exports.SALT_ROUNDS = SALT_ROUNDS
+exports.makeHashOf = makeHashOf
+exports.retrieveDataFrom = retrieveDataFrom
+// exports.authenticateToken = authenticateToken
+// exports.generateAccessToken = generateAccessToken
+exports.exitHandler = exitHandler
+exports.dbConnect = dbConnect
+exports.addRoutes = addRoutes
+exports.userExists = userExists
