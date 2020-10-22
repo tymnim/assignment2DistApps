@@ -8,7 +8,7 @@ const {
 
 exports.signUp = {
   type: "post",
-  path: "/signUp",
+  path: "/signup",
   authNeeded: false,
   callback: async function signUp(req, res) {
     try {
