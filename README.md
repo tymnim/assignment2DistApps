@@ -1,6 +1,6 @@
 # Distributed Application Developemnt Assingment 2
 
-This is complete JavaScript Written REST API for Utunes store.
+This is complete JavaScript-written REST API for Utunes store. (Conestoga College | PROG3170 | Assignment 2)
 
 ### Technologies used
 
@@ -12,7 +12,7 @@ This is complete JavaScript Written REST API for Utunes store.
 
 ### Pre requirements
 
-* `node` version `15.0.0` or any version that supports must supports `ES2020`
+* `node` version `15.0.0` or any version that supports `ES2020`
 * `mongo-community` version `3.6.0` or later
 * `npm` version `6.14.0` or later
 
