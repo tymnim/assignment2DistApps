@@ -25,8 +25,24 @@ exports.getSong = {
         return
       }
 
+      const songReviews = await new Promise((resolve, reject) => global.db.collection("reviews").find({ songId }, { limit: 10 }).toArray((err, reviews) => {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve(reviews)
+      }))
+
       await global.db.collection("songs").updateOne({ _id: idFromString(songId) }, { $inc: { views: 1 } })
+
       song.views++
+      song.reviews = songReviews.map(review => ({
+        username: review.username,
+        updatedAt: review.updatedAt,
+        like: review.like,
+        review: review.review
+      }))
+
       res.status(200)
       res.send({ song })
       res.end()
