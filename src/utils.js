@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken")
 
 const SALT_ROUNDS = 10
 
+// makes bcrypt encrypted hash from a password
 function makeHashOf(password, saltRounds) {
   return new Promise((resolve, reject) => {
     bcrypt.hash(password, saltRounds, (err, hash) => {
@@ -16,6 +17,7 @@ function makeHashOf(password, saltRounds) {
   })
 }
 
+// checks password/hash match to verify password
 function passwordsMatch(password, hash) {
   return new Promise((resolve, reject) => {
     bcrypt.compare(password, hash, (err, res) => {
@@ -28,6 +30,7 @@ function passwordsMatch(password, hash) {
   })
 }
 
+// gets all request data and parses as json
 function retrieveDataFrom(req) {
   return new Promise((resolve, reject) => {
     let data = ""
@@ -50,6 +53,7 @@ function retrieveDataFrom(req) {
   })
 }
 
+// checks for validity of JSON web tocken
 function authenticateToken(req, res, next) {
   // Gather the jwt access token from the request header
   const authHeader = req.headers['authorization']
@@ -77,6 +81,7 @@ function generateAccessTokenFor(username) {
   return jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: 60 * 60 })
 }
 
+// adds listener to any exit events to execute some cleanup function if we need any
 function exitHandler(cleanUpFn) {
   process.stdin.resume() // so the program will not close instantly
   const exit = () => {
@@ -93,6 +98,7 @@ function exitHandler(cleanUpFn) {
   process.on('uncaughtException', exit)
 }
 
+// sets up db connction; adds db connection close to exitHandler
 function dbConnect(url) {
   return new Promise((resolve, reject) => {
     const cl = new MongoClient(url)
@@ -112,6 +118,7 @@ function dbConnect(url) {
   })
 }
 
+// adds routes to the express app
 function addRoutes(routes, app) {
   routes.forEach(route => {
     const name = Object.keys(route)[0]
@@ -126,10 +133,12 @@ function addRoutes(routes, app) {
   })
 }
 
+// converting string to mongo ObjectId to be used in the databse
 function idFromString(string) {
   return new ObjectId(string)
 }
 
+// converting mongo ObjectId into string
 function stringFromId(id) {
   return id.toHexString()
 }
