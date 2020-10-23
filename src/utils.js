@@ -117,24 +117,11 @@ function addRoutes(routes, app) {
     const name = Object.keys(route)[0]
     const { type, path, authNeeded, callback } = route[name]
     console.log(` + Adding ${name} route at ${path}`)
-    if (type === "get") {
-      if (authNeeded) {
-        app.get(path, authenticateToken, callback)
-      }
-      else {
-        app.get(path, callback)
-      }
-      return
+    if (authNeeded) {
+      app[type](path, authenticateToken, callback)
     }
-
-    if (type === "post") {
-      if (authNeeded) {
-        app.post(path, authenticateToken, callback)
-      }
-      else {
-        app.post(path, callback)
-      }
-      return
+    else {
+      app[type](path, callback)
     }
   })
 }

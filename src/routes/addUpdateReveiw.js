@@ -5,11 +5,11 @@ const {
   stringFromId
 } = require("../utils.js")
 
-exports.addReview = {
+exports.addUpdateReview = {
   type: "post",
   path: "/review/:songId",
   authNeeded: true,
-  callback: async function getSong(req, res) {
+  callback: async function addUpdateReview(req, res) {
     try {
       if (! req.params?.songId) {
         res.status(400)
