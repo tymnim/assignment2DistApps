@@ -6,7 +6,10 @@ exports.listTopSongs = {
   callback: async function getTopSongs(req, res) {
     try {
       const topSongs = await new Promise((resolve, reject) => { 
-        global.db.collection("songs").find({}, { sort: { reviews: -1 }, limit: 100 }).toArray((err, songs) => {
+        global.db.collection("songs").find({}, {
+          sort: { views: -1 },
+          limit: 100
+        }).toArray((err, songs) => {
           if (err) {
             reject(err)
             return
@@ -22,7 +25,13 @@ exports.listTopSongs = {
         return
       }
       res.status(200)
-      res.send({ songs: topSongs })
+      res.send({ songs: topSongs.map(song => ({
+        title: song.title,
+        artist: song.artist,
+        album: song.album,
+        released: song.released,
+        link: `/songs/${song._id}`
+      })) })
       res.end()
     }
     catch (err) {

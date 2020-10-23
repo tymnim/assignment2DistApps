@@ -16,8 +16,8 @@ exports.getSong = {
         return
       }
 
-      const songId = req.params?.songId;
-      const song = await global.db.collection("songs").findOne({ _id: idFromString(songId) });
+      const songId = req.params?.songId
+      const song = await global.db.collection("songs").findOne({ _id: idFromString(songId) })
       if (!song) {
         res.status(404)
         res.send("Song is not found")

@@ -18,7 +18,7 @@ exports.signUp = {
       if (exists) {
         res.status(409)
         res.send({ error: "Username is already taken." })
-        res.end();
+        res.end()
         return
       }
       const inserted = await global.db.collection("users").insertOne({

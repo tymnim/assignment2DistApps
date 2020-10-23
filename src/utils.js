@@ -35,7 +35,7 @@ function retrieveDataFrom(req) {
       data += chunk
     })
     req.on("end", () => {
-      let parsed;
+      let parsed
       try {
         parsed = JSON.parse(data)
       }
