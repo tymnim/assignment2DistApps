@@ -115,8 +115,8 @@ function dbConnect(url) {
 function addRoutes(routes, app) {
   routes.forEach(route => {
     const name = Object.keys(route)[0]
-    console.log(` + Adding ${name} route`)
     const { type, path, authNeeded, callback } = route[name]
+    console.log(` + Adding ${name} route at ${path}`)
     if (type === "get") {
       if (authNeeded) {
         app.get(path, authenticateToken, callback)

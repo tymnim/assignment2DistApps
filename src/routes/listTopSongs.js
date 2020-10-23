@@ -1,11 +1,9 @@
 
-const {} = require("../utils.js")
-
 exports.listTopSongs = {
   type: "get",
   path: "/top",
   authNeeded: true,
-  callback: async function logIn(req, res) {
+  callback: async function getTopSongs(req, res) {
     try {
       const topSongs = await new Promise((resolve, reject) => { 
         global.db.collection("songs").find({}, { sort: { reviews: -1 }, limit: 100 }).toArray((err, songs) => {
