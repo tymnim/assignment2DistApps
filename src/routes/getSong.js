@@ -5,7 +5,6 @@ exports.getSong = {
   authNeeded: true,
   callback: async function getSong(req, res) {
     try {
-      console.log(req.params)
       if (! req.params?.songId) {
         res.status(400)
         res.send("Song ID is requiered")
@@ -21,6 +20,8 @@ exports.getSong = {
         res.end()
         return
       }
+
+      await global.db.update({ _id: songId }, { $inc: "views" })
 
       res.status(200)
       res.send({ song })
