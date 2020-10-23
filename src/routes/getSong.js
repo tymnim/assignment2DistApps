@@ -1,4 +1,8 @@
 
+const {
+  idFromString
+} = require("../utils.js")
+
 exports.getSong = {
   type: "get",
   path: "/songs/:songId",
@@ -13,7 +17,7 @@ exports.getSong = {
       }
 
       const songId = req.params?.songId;
-      const song = global.db.findOne({ _id: songId });
+      const song = await global.db.collection("songs").findOne({ _id: idFromString(songId) });
       if (!song) {
         res.status(404)
         res.send("Song is not found")
@@ -21,8 +25,8 @@ exports.getSong = {
         return
       }
 
-      await global.db.update({ _id: songId }, { $inc: "views" })
-
+      await global.db.collection("songs").updateOne({ _id: idFromString(songId) }, { $inc: { views: 1 } })
+      song.views++
       res.status(200)
       res.send({ song })
       res.end()

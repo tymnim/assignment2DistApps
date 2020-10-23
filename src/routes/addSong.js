@@ -5,14 +5,14 @@ const {
   stringFromId
 } = require("../utils.js")
 
-exports.getSong = {
+exports.addSong = {
   type: "post",
-  path: "/addsong/",
+  path: "/addsong",
   authNeeded: true,
   callback: async function addSong(req, res) {
     try {
       const { artist, title, released, album, music } = await retrieveDataFrom(req)
-      const user = global.db.collection("users").findOne({ name: req.username })
+      const user = await global.db.collection("users").findOne({ name: req.username })
 
       const newSong = {
         artist,
