@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt')
-const { MongoClient } = require('mongodb')
+const { MongoClient, ObjectId } = require('mongodb')
 const jwt = require("jsonwebtoken")
 
 const SALT_ROUNDS = 10
@@ -139,6 +139,14 @@ function addRoutes(routes, app) {
   })
 }
 
+function idFromString(string) {
+  return new ObjectId(string)
+}
+
+function stringFromId(id) {
+  return id.toHexString()
+}
+
 exports.SALT_ROUNDS = SALT_ROUNDS
 exports.makeHashOf = makeHashOf
 exports.retrieveDataFrom = retrieveDataFrom
@@ -148,3 +156,5 @@ exports.exitHandler = exitHandler
 exports.dbConnect = dbConnect
 exports.addRoutes = addRoutes
 exports.passwordsMatch = passwordsMatch
+exports.idFromString = idFromString
+exports.stringFromId = stringFromId

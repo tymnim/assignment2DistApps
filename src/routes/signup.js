@@ -2,7 +2,6 @@
 const {
   retrieveDataFrom,
   makeHashOf,
-  userExists,
   SALT_ROUNDS
 } = require("../utils.js")
 
