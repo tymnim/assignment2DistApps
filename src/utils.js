@@ -50,19 +50,28 @@ function retrieveDataFrom(req) {
   })
 }
 
-// function authenticateToken(req, res, next) {
-//   // Gather the jwt access token from the request header
-//   const authHeader = req.headers['authorization']
-//   const token = authHeader && authHeader.split(' ')[1]
-//   if (token == null) return res.sendStatus(401) // if there isn't any token
-
-//   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-//     console.log(err)
-//     if (err) return res.sendStatus(403)
-//     req.user = user
-//     next() // pass the execution off to whatever request the client intended
-//   })
-// }
+function authenticateToken(req, res, next) {
+  // Gather the jwt access token from the request header
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  if (!token) {
+    res.status(401)
+    res.send("Failed to authentificate. Please log in")
+    res.end()
+    return
+  }
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      console.log(err)
+      res.status(403)
+      res.send("Failed to authentificate. Please log in")
+      res.end()
+      return
+    }
+    req.username = decoded.username
+    next()
+  })
+}
 
 function generateAccessTokenFor(username) {
   return jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: 60 * 60 })
@@ -133,7 +142,7 @@ function addRoutes(routes, app) {
 exports.SALT_ROUNDS = SALT_ROUNDS
 exports.makeHashOf = makeHashOf
 exports.retrieveDataFrom = retrieveDataFrom
-// exports.authenticateToken = authenticateToken
+exports.authenticateToken = authenticateToken
 exports.generateAccessTokenFor = generateAccessTokenFor
 exports.exitHandler = exitHandler
 exports.dbConnect = dbConnect
