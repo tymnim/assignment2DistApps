@@ -30,6 +30,7 @@ exports.listTopSongs = {
         artist: song.artist,
         album: song.album,
         released: song.released,
+        views: song.views,
         link: `/songs/${song._id}`
       })) })
       res.end()
