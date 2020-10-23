@@ -15,7 +15,7 @@ exports.logIn = {
     try {
       const { username, password } = await retrieveDataFrom(req)
 
-      const user = await db.collection("users").findOne({ name: username })
+      const user = await global.db.collection("users").findOne({ name: username })
       if (!user) {
         res.status(404)
         res.send({ error: `User ${username} is not found` })
@@ -32,9 +32,9 @@ exports.logIn = {
       }
 
       const token = generateAccessTokenFor(username)
-
       if (token) {
         res.status(200)
+        res.cookie('jwt', token, { expires: new Date(Date.now() + 60 * 60 * 1000), secure: true })
         res.send({ OK: "Authorized Successfully", jwt: token })
         res.end()
       }

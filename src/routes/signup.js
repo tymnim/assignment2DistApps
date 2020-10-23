@@ -14,7 +14,7 @@ exports.signUp = {
     try {
       const { username, password } = await retrieveDataFrom(req)
       const encrypredPassword = await makeHashOf(password, SALT_ROUNDS)
-      const exists = await db.collection("users").findOne({ name: username })
+      const exists = await global.db.collection("users").findOne({ name: username })
 
       if (exists) {
         res.status(409)
